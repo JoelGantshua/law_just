@@ -1,321 +1,300 @@
-import React, { useState } from 'react';
-import { Search, Filter, BookOpen, FileText, Scale, Clock, ArrowRight } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
- 
+import React, { useMemo, useState } from 'react';
+
+type ResultItem = {
+  title: string;
+  description: string;
+  link: string;
+};
+
+const PRIMARY = '#2c3e50';
+const SECONDARY = '#3498db';
+
+const predefinedSuggestions = [
+  'Code civil',
+  'Code du travail',
+  'Code pénal',
+  'Droit des contrats',
+  'Droit de la propriété intellectuelle',
+  'Droit des sociétés',
+  'Droit administratif',
+  'Droit constitutionnel',
+  'Droit fiscal',
+  "Droit de l'environnement",
+  'Droit de la consommation',
+  'Droit international',
+  'Droit européen',
+  'Droit des affaires',
+  'Droit de la famille'
+];
+
+const baseResults: ResultItem[] = [
+  {
+    title: 'Code civil',
+    description:
+      "Le Code civil français, souvent appelé Code Napoléon, regroupe les lois relatives au droit civil français, c'est-à-dire l'ensemble des règles qui déterminent le statut des personnes, celui des biens et celui des relations entre les personnes privées.",
+    link: 'https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070721'
+  },
+  {
+    title: 'Code du travail',
+    description:
+      "Le Code du travail français regroupe l'ensemble des textes législatifs et réglementaires applicables en matière de droit du travail, notamment les relations individuelles et collectives de travail, l'emploi et la formation professionnelle.",
+    link: 'https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006072050'
+  },
+  {
+    title: 'Code pénal',
+    description:
+      "Le Code pénal français est le texte qui fixe l'ensemble des infractions et des peines applicables en France. Il distingue trois catégories d'infractions : les contraventions, les délits et les crimes.",
+    link: 'https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070719'
+  },
+  {
+    title: 'Code de commerce',
+    description:
+      'Le Code de commerce français regroupe les textes législatifs et réglementaires relatifs au droit commercial, notamment les actes de commerce, les commerçants, les sociétés commerciales et les procédures collectives.',
+    link: 'https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000005634379'
+  },
+  {
+    title: 'Code de la consommation',
+    description:
+      'Le Code de la consommation français regroupe les textes législatifs et réglementaires relatifs à la protection des consommateurs, notamment les pratiques commerciales, la publicité, les contrats de consommation et le crédit à la consommation.',
+    link: 'https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006069565'
+  },
+  {
+    title: "Code de l'environnement",
+    description:
+      "Le Code de l'environnement français regroupe les textes législatifs et réglementaires relatifs à la protection de l'environnement, notamment la biodiversité, l'eau, les déchets, les installations classées et l'évaluation environnementale.",
+    link: 'https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006074220'
+  }
+];
+
+const normalize = (s: string) =>
+  s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 const SearchPage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchResults, setSearchResults] = useState([]);
-  
-  const normalize = (s: string) =>
-    s
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<ResultItem[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
+  const filteredSuggestions = useMemo(() => {
+    if (query.trim().length < 2) return [];
+    const nq = normalize(query.trim());
+    return predefinedSuggestions.filter(s => normalize(s).includes(nq));
+  }, [query]);
 
-  const categories = [
-    { id: 'all', name: 'Tout', icon: Search },
-    { id: 'civil', name: 'Droit civil', icon: BookOpen },
-    { id: 'penal', name: 'Droit pénal', icon: Scale },
-    { id: 'travail', name: 'Droit du travail', icon: FileText },
-    { id: 'commerce', name: 'Droit commercial', icon: BookOpen },
-  ];
+  const performSearch = (q: string) => {
+    setShowSuggestions(false);
+    setLoading(true);
+    setResults([]);
 
-  const mockResults = [
-    {
-      id: 1,
-      title: 'Article 1382 du Code civil - Responsabilité délictuelle',
-      category: 'civil',
-      type: 'article',
-      content: 'Tout fait quelconque de l\'homme, qui cause à autrui un dommage, oblige celui par la faute duquel il est arrivé à le réparer.',
-      relevance: 95,
-      date: '2024-01-15',
-    },
-    {
-      id: 2,
-      title: 'Jurisprudence - Harcèlement moral au travail',
-      category: 'travail',
-      type: 'jurisprudence',
-      content: 'Le harcèlement moral se caractérise par des agissements répétés qui ont pour objet ou pour effet une dégradation des conditions de travail...',
-      relevance: 88,
-      date: '2024-01-10',
-    },
-    {
-      id: 3,
-      title: 'Article 222-33 du Code pénal - Harcèlement sexuel',
-      category: 'penal',
-      type: 'article',
-      content: 'Le fait de harceler autrui par des propos ou comportements à connotation sexuelle est puni de deux ans d\'emprisonnement...',
-      relevance: 92,
-      date: '2024-01-12',
-    },
-  ];
+    setTimeout(() => {
+      const nq = normalize(q);
+      const filtered = baseResults.filter(
+        r => normalize(r.title).includes(nq) || normalize(r.description).includes(nq)
+      );
+      setResults(filtered);
+      setLoading(false);
+    }, 800);
+  };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const q = normalize(searchQuery);
-    if (!q) {
-      setSearchResults([]);
-      return;
-    }
-    let terms = q.split(' ').filter(Boolean);
-    // Aliases simples pour améliorer le rappel
-    const aliases: Record<string, string[]> = {
-      'droit du travail': ['travail'],
-      'code penal': ['penal'],
-      'code pénal': ['penal'],
-      'code civil': ['civil']
-    };
-    Object.entries(aliases).forEach(([key, vals]) => {
-      if (q.includes(key)) {
-        vals.forEach(v => terms.push(v));
-      }
-    });
-    // Regrouper le contenu à matcher
-    const filtered = mockResults
-      .filter(r => (selectedCategory === 'all' ? true : r.category === selectedCategory))
-      .filter(r => {
-        const blob = normalize(`${r.title} ${r.content} ${r.type} ${r.category}`);
-        // Au moins un terme doit matcher pour remonter un résultat
-        return terms.some(term => blob.includes(term));
-      });
-    setSearchResults(filtered);
-  };
- 
-
-  const getCategoryIcon = (category: string) => {
-    const cat = categories.find(c => c.id === category);
-    return cat ? cat.icon : Search;
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'article':
-        return 'bg-primary-100 text-primary-800';
-      case 'jurisprudence':
-        return 'bg-success-100 text-success-800';
-      case 'doctrine':
-        return 'bg-warning-100 text-warning-800';
-      default:
-        return 'bg-secondary-100 text-secondary-800';
-    }
+    const q = query.trim();
+    if (q) performSearch(q);
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50">
-      <div className="container py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">
-            Recherche juridique IA
+    <div style={{ backgroundColor: '#f5f7fa' }}>
+      <div
+        style={{
+          background: `linear-gradient(135deg, ${PRIMARY}, ${SECONDARY})`,
+          color: '#fff',
+          padding: '2rem 0',
+          textAlign: 'center',
+          borderRadius: '0 0 20px 20px',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          marginBottom: '2rem'
+        }}
+      >
+        <div className="container">
+          <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
+            Recherche IA - Documents Législatifs
           </h1>
-          <p className="text-xl text-secondary-600 max-w-3xl">
-            Recherchez dans notre base de données juridique avec l'intelligence artificielle. 
-            Obtenez des explications claires et des références précises.
+          <p style={{ fontSize: '1.2rem', opacity: 0.9 }}>
+            Trouvez rapidement des documents juridiques et législatifs
+          </p>
+        </div>
+      </div>
+
+      <div className="container" style={{ maxWidth: 1200, margin: '0 auto', padding: 20 }}>
+        <div
+          className="search-container"
+          style={{
+            backgroundColor: '#fff',
+            borderRadius: 12,
+            padding: '2rem',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            marginBottom: '2rem',
+            position: 'relative'
+          }}
+        >
+          <form onSubmit={handleSubmit}>
+            <div className="search-box" style={{ display: 'flex', marginBottom: '1rem' }}>
+              <input
+                type="text"
+                placeholder="Rechercher des documents législatifs..."
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                style={{
+                  flex: 1,
+                  padding: '15px 20px',
+                  border: '2px solid #ddd',
+                  borderRight: 'none',
+                  borderRadius: '8px 0 0 8px',
+                  fontSize: '1.1rem'
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  backgroundColor: SECONDARY,
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '0 8px 8px 0',
+                  padding: '0 25px',
+                  cursor: 'pointer',
+                  fontSize: '1.1rem'
+                }}
+              >
+                Rechercher
+              </button>
+            </div>
+          </form>
+
+          {showSuggestions && filteredSuggestions.length > 0 && (
+            <div
+              className="suggestions-container"
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                backgroundColor: '#fff',
+                borderRadius: '0 0 8px 8px',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                zIndex: 10,
+                maxHeight: 300,
+                overflowY: 'auto'
+              }}
+            >
+              {filteredSuggestions.map((s) => (
+                <div
+                  key={s}
+                  className="suggestion-item"
+                  style={{
+                    padding: '12px 20px',
+                    borderBottom: '1px solid #eee',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    setQuery(s);
+                    setShowSuggestions(false);
+                    performSearch(s);
+                  }}
+                >
+                  {s}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <p className="info-text" style={{ textAlign: 'center', color: '#7f8c8d', marginTop: '1rem', fontStyle: 'italic' }}>
+            Commencez à taper pour obtenir des suggestions de recherche
           </p>
         </div>
 
-        {/* Search Form */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <form onSubmit={handleSearch} className="space-y-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
-                <Input
-                  type="text"
-                  placeholder="Recherchez un article, une jurisprudence, un concept juridique..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 text-lg"
-                />
-              </div>
-              
-              {/* Category Filters */}
-              <div className="flex flex-wrap gap-2">
-                {categories.map((category) => {
-                  const Icon = category.icon;
-                  return (
-                    <Button
-                      key={category.id}
-                      variant={selectedCategory === category.id ? 'primary' : 'outline'}
-                      size="sm"
-                      onClick={() => setSelectedCategory(category.id)}
-                      className="flex items-center space-x-2"
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span>{category.name}</span>
-                    </Button>
-                  );
-                })}
-              </div>
-
-              <div className="flex justify-between items-center">
-                <Button type="submit" size="lg" className="px-8">
-                  Rechercher
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filtres avancés
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        
-
-        {/* Search Results */}
-        {searchResults.length > 0 && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold text-secondary-900">
-                Résultats de recherche ({searchResults.length})
-              </h2>
-              <div className="text-sm text-secondary-500">
-                Triés par pertinence
-              </div>
-            </div>
-
-            <div className="grid gap-6">
-              {searchResults.map((result) => {
-                const CategoryIcon = getCategoryIcon(result.category);
-                return (
-                  <Card key={result.id} hover>
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-primary-50 rounded-lg">
-                            <CategoryIcon className="h-5 w-5 text-primary-600" />
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-semibold text-secondary-900 mb-1">
-                              {result.title}
-                            </h3>
-                            <div className="flex items-center space-x-4 text-sm text-secondary-500">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(result.type)}`}>
-                                {result.type === 'article' ? 'Article' : 
-                                 result.type === 'jurisprudence' ? 'Jurisprudence' : 'Doctrine'}
-                              </span>
-                              <span className="flex items-center">
-                                <Clock className="h-4 w-4 mr-1" />
-                                {result.date}
-                              </span>
-                              <span className="flex items-center">
-                                <span className="w-2 h-2 bg-success-500 rounded-full mr-2"></span>
-                                {result.relevance}% de pertinence
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <p className="text-secondary-600 mb-4 leading-relaxed">
-                        {result.content}
-                      </p>
-                      
-                      <div className="flex items-center justify-between">
-                        <Button variant="outline" size="sm">
-                          Voir le détail
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                        <div className="flex space-x-2">
-                          <Button variant="ghost" size="sm">
-                            Explication IA
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            Sauvegarder
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+        {loading && (
+          <div className="loading" style={{ textAlign: 'center', padding: '2rem' }}>
+            <div
+              className="spinner"
+              style={{
+                border: '4px solid rgba(0,0,0,0.1)',
+                borderLeftColor: SECONDARY,
+                borderRadius: '50%',
+                width: 40,
+                height: 40,
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 1rem'
+              }}
+            />
+            <p>Recherche en cours...</p>
           </div>
         )}
 
-        
-
-        {/* No Results State */}
-        {searchQuery && searchResults.length === 0 && (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <Search className="h-12 w-12 text-secondary-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-secondary-900 mb-2">
-                Aucun résultat trouvé
-              </h3>
-              <p className="text-secondary-600 mb-6">
-                Essayez avec d'autres mots-clés ou utilisez des termes plus généraux.
-              </p>
-              <Button variant="outline">
-                Nouvelle recherche
-              </Button>
-            </CardContent>
-          </Card>
+        {!loading && results.length === 0 && query.trim() !== '' && (
+          <div className="no-results" style={{ textAlign: 'center', padding: '2rem', color: '#7f8c8d' }}>
+            <h3>Aucun résultat trouvé</h3>
+            <p>Essayez avec d'autres termes de recherche</p>
+          </div>
         )}
 
-        {/* Quick Access */}
-        {!searchQuery && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-semibold text-secondary-900 mb-6">
-              Accès rapide
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card hover>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <BookOpen className="h-5 w-5 text-primary-600 mr-2" />
-                    Code civil
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Accès direct aux articles du Code civil français
-                  </CardDescription>
-                </CardContent>
-              </Card>
-              
-              <Card hover>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Scale className="h-5 w-5 text-primary-600 mr-2" />
-                    Code pénal
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Consultation du Code pénal et de la jurisprudence
-                  </CardDescription>
-                </CardContent>
-              </Card>
-              
-              <Card hover>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <FileText className="h-5 w-5 text-primary-600 mr-2" />
-                    Droit du travail
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Textes et jurisprudence en droit du travail
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </div>
+        {!loading && results.length > 0 && (
+          <div className="results-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
+            {results.map((r) => (
+              <div
+                key={r.title}
+                className="result-card"
+                style={{
+                  backgroundColor: '#fff',
+                  borderRadius: 8,
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                }}
+              >
+                <div className="card-header" style={{ backgroundColor: PRIMARY, color: '#fff', padding: 15 }}>
+                  <h3>{r.title}</h3>
+                </div>
+                <div className="card-body" style={{ padding: 15 }}>
+                  <p>{r.description}</p>
+                </div>
+                <div className="card-footer" style={{ padding: 15, backgroundColor: '#f8f9fa', borderTop: '1px solid #eee' }}>
+                  <a
+                    href={r.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="document-link"
+                    style={{
+                      display: 'inline-block',
+                      backgroundColor: SECONDARY,
+                      color: '#fff',
+                      padding: '8px 15px',
+                      borderRadius: 4,
+                      textDecoration: 'none',
+                      fontWeight: 500
+                    }}
+                  >
+                    Voir le document
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
+
+      <style>
+        {`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   );
 };
 
 export default SearchPage;
+
