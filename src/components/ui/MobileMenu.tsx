@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Menu, Scale, Search, User, Bell, Home, FileText, Database, Users, MessageSquare } from 'lucide-react';
+import { X, Scale, User, Bell, Home, FileText, Users } from 'lucide-react';
 import { Button } from './Button';
 
 interface MobileMenuProps {
@@ -13,10 +13,10 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
     : false;
   const navigation = [
     { name: 'Accueil', href: '/', icon: Home },
-    { name: 'Recherche IA', href: '/search', icon: Search },
     { name: 'Générateur', href: '/generator', icon: FileText },
-    { name: 'Assistance IA', href: '/assistant', icon: MessageSquare },
     { name: 'Avocats', href: '/lawyers', icon: Users },
+    { name: 'Services', href: '/Services' },
+    { name: 'A propos', href: '/about' },
   ];
 
   if (!isOpen) return null;
@@ -56,7 +56,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                   className="flex items-center space-x-3 px-3 py-3 rounded-lg text-base font-medium text-secondary-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"
                   onClick={onClose}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Home  className="h-5 w-5" />
                   <span>{item.name}</span>
                 </a>
               );

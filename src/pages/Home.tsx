@@ -1,9 +1,13 @@
-import React from 'react';
-import { Search, Scale, Users, Shield, ArrowRight, Star, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Scale, Users, Shield, ArrowRight, Star } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
+import { useNavigate } from 'react-router-dom';
 
 const Home: React.FC = () => {
+  const navigate = useNavigate();
+  const [showRegistration, setShowRegistration] = useState(false);
+
   const features = [
     {
       icon: Search,
@@ -15,7 +19,7 @@ const Home: React.FC = () => {
     {
       icon: Scale,
       title: 'Base de données',
-      description: 'Accès complet aux codes juridiques français et à la jurisprudence récente.',
+      description: 'Accès complet aux codes juridiques et à la jurisprudence récente.',
       color: 'text-success-600',
       bgColor: 'bg-success-50',
     },
@@ -46,57 +50,81 @@ const Home: React.FC = () => {
     {
       name: 'Marie Dubois',
       role: 'Victime de harcèlement',
-      content: 'Law Just m\'a aidée à comprendre mes droits et à déposer ma plainte en toute simplicité.',
+      content: 'Law Just m\'a aidée à comprendre mes droits et à déposer ma plainte facilement.',
       rating: 5,
     },
     {
       name: 'Jean Martin',
       role: 'Avocat',
-      content: 'Une plateforme innovante qui facilite la recherche juridique et améliore l\'efficacité.',
+      content: 'Une plateforme innovante qui améliore la productivité juridique.',
       rating: 5,
     },
     {
       name: 'Sophie Laurent',
       role: 'Étudiante en droit',
-      content: 'L\'outil de recherche IA est exceptionnel pour comprendre les textes complexes.',
+      content: 'L’outil IA est excellent pour comprendre les textes complexes.',
       rating: 5,
     },
   ];
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="container">
-          <div className="py-20 text-center">
-            <div className="animate-fade-in-up">
-              <h1 className="text-4xl md:text-6xl font-bold text-secondary-900 mb-6">
-                Votre <span className="text-primary-600">partenaire juridique</span> moderne
-              </h1>
-              <p className="text-xl text-secondary-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Accédez facilement au droit français avec notre IA juridique, 
-                générez vos documents et trouvez l'assistance dont vous avez besoin.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="text-lg px-8">
-                  Commencer maintenant
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                <Button variant="outline" size="lg" className="text-lg px-8">
-                  Découvrir nos services
-                </Button>
-              </div>
-            </div>
+
+      {/* HERO SECTION */}
+      <section className="relative h-[90vh] flex items-center justify-center">
+        
+        {/* Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/src/assets/images/3.jpg')" }}
+        />
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/60" />
+
+        {/* Content */}
+        <div className="relative z-10 text-center px-6 max-w-4xl">
+          
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            Votre <span className="text-primary-400">partenaire juridique</span>
+          </h1>
+
+          <p className="text-lg md:text-xl text-white mb-8 leading-relaxed">
+            Accédez facilement au droit grâce à notre intelligence artificielle,
+            générez vos documents juridiques et trouvez un avocat en quelques clics.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            
+            <Button
+              size="lg"
+              className="text-lg px-8 bg-primary-600 hover:bg-primary-700"
+              onClick={() => setShowRegistration(true)}
+            >
+              Commencer maintenant
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              className="text-lg px-8 border-white text-white hover:bg-white hover:text-black"
+              onClick={() => navigate('/services')}
+            >
+              Découvrir nos services
+            </Button>
+
           </div>
+
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* STATS */}
       <section className="section bg-white">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div key={index} className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-primary-600 mb-2">
                   {stat.number}
                 </div>
@@ -107,30 +135,29 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* FEATURES */}
       <section className="section bg-secondary-50">
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">
               Nos services innovants
             </h2>
-            <p className="text-xl text-secondary-600 max-w-2xl mx-auto">
-              Des outils modernes pour simplifier l'accès au droit français
+            <p className="text-xl text-secondary-600">
+              Des outils modernes pour simplifier l'accès au droit
             </p>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} hover className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
+              <Card key={index} hover>
                 <CardHeader>
                   <div className={`w-12 h-12 rounded-lg ${feature.bgColor} flex items-center justify-center mb-4`}>
                     <feature.icon className={`h-6 w-6 ${feature.color}`} />
                   </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardTitle>{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-base">
-                    {feature.description}
-                  </CardDescription>
+                  <CardDescription>{feature.description}</CardDescription>
                 </CardContent>
               </Card>
             ))}
@@ -138,105 +165,67 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="section bg-white">
-        <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">
-              Comment ça marche ?
-            </h2>
-            <p className="text-xl text-secondary-600 max-w-2xl mx-auto">
-              Trois étapes simples pour accéder à vos droits
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center animate-fade-in-up">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-primary-600">1</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-4">Recherchez</h3>
-              <p className="text-secondary-600">
-                Utilisez notre moteur de recherche IA pour trouver les informations juridiques pertinentes.
-              </p>
-            </div>
-            <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-primary-600">2</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-4">Générez</h3>
-              <p className="text-secondary-600">
-                Créez automatiquement vos documents juridiques personnalisés.
-              </p>
-            </div>
-            <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl font-bold text-primary-600">3</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-4">Agissez</h3>
-              <p className="text-secondary-600">
-                Obtenez l'assistance nécessaire et agissez en toute confiance.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="section bg-secondary-50">
-        <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-4">
-              Ce que disent nos utilisateurs
-            </h2>
-            <p className="text-xl text-secondary-600 max-w-2xl mx-auto">
-              Des témoignages authentiques de notre communauté
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
-                <CardContent>
-                  <div className="flex mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 text-warning-400 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-secondary-600 mb-4 italic">
-                    "{testimonial.content}"
-                  </p>
-                  <div>
-                    <div className="font-semibold text-secondary-900">{testimonial.name}</div>
-                    <div className="text-sm text-secondary-500">{testimonial.role}</div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
+      {/* CTA */}
       <section className="section bg-primary-600 text-white">
         <div className="container text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Prêt à simplifier votre accès au droit ?
-            </h2>
-            <p className="text-xl mb-8 opacity-90">
-              Rejoignez des milliers d'utilisateurs qui font confiance à Law Just
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" className="text-lg px-8">
-                Commencer gratuitement
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 border-white text-white hover:bg-white hover:text-primary-600">
-                En savoir plus
-              </Button>
-            </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Prêt à simplifier votre accès au droit ?
+          </h2>
+          <p className="text-xl mb-8 opacity-90">
+            Rejoignez des milliers d'utilisateurs
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-lg px-8 border-white text-white hover:bg-white hover:text-primary-600"
+              onClick={() => navigate('/register/user')}
+            >
+              Commencer gratuitement
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-lg px-8 border-white text-white hover:bg-white hover:text-primary-600"
+              onClick={() => navigate('/about')}
+            >
+              En savoir plus
+            </Button>
           </div>
         </div>
       </section>
+
+      {/* TESTIMONIALS */}
+      <section className="section bg-secondary-50">
+        <div className="container">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+            Ce que disent nos utilisateurs
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((t, i) => (
+              <Card key={i}>
+                <CardContent>
+                  <div className="flex mb-4">
+                    {[...Array(t.rating)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="italic mb-4">"{t.content}"</p>
+                  <div>
+                    <div className="font-semibold">{t.name}</div>
+                    <div className="text-sm text-gray-500">{t.role}</div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 };

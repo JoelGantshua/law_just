@@ -10,6 +10,16 @@ import AdminDashboard from './pages/AdminDashboard';
 import LoginPage from './pages/Login';
 import LawyersPage from './pages/Lawyers';
 import AssistantPage from './pages/Assistant';
+import ContactPage from './pages/Contact';
+import DashboardLawyer from './pages/DashboardLawyer';
+import ServicesPage from './pages/Services';
+import AboutPage from './pages/About';
+import RegistrationForm from './components/forms/UserRegistrationForm';
+import { useState } from 'react';
+import LawyerRegistrationForm from './components/forms/LawyerRegistrationForm';
+import Modal from './components/ui/Modal';
+import GuidePratique from './pages/GuidePratique';
+import FAQ from './pages/FAQ';
 
 function RequireRole({ role, children }: { role: 'user' | 'admin'; children: React.ReactNode }) {
   const current = (typeof window !== 'undefined' && localStorage.getItem('role')) as 'user' | 'admin' | null;
@@ -19,6 +29,9 @@ function RequireRole({ role, children }: { role: 'user' | 'admin'; children: Rea
 }
 
 function App() {
+  const [showRegistration, setShowRegistration] = useState(false);
+  const [accountType, setAccountType] = useState<'user' | 'lawyer'>('user');
+
   return (
     <Router>
       <div className="min-h-screen flex flex-col">
@@ -30,6 +43,20 @@ function App() {
             <Route path="/generator" element={<GeneratorPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/assistant" element={<AssistantPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/dashboard/lawyer" element={<DashboardLawyer />} />
+            <Route path="/register" element={<RegistrationForm type={accountType} onClose={() => setShowRegistration(false)} />} />
+            <Route path="/register/lawyer" element={<LawyerRegistrationForm onClose={() => setShowRegistration(false)} />} />
+            <Route path="/register" element={<Modal isOpen={showRegistration} onClose={() => setShowRegistration(false)}>
+              <RegistrationForm type={accountType} onClose={() => setShowRegistration(false)} />
+            </Modal>} />
+            <Route path="/guide" element={<GuidePratique />} />
+            <Route path="/faq" element={<FAQ />} />
+            
+            
+            
             <Route
               path="/dashboard/user"
               element={

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, Scale, Search, User, Bell, MessageSquare } from 'lucide-react';
+import { Menu, Scale, User, MessageSquare } from 'lucide-react';
 import { Button } from '../ui/Button';
 import MobileMenu from '../ui/MobileMenu';
 
@@ -11,9 +11,11 @@ const Header: React.FC = () => {
 
   const navigation = [
     { name: 'Accueil', href: '/' },
-    { name: 'Recherche IA', href: '/search' },
     { name: 'Générateur', href: '/generator' },
     { name: 'Avocats', href: '/lawyers' },
+    { name: 'Contact', href: '/contact' },
+    { name: 'Services', href: '/Services' },
+    { name: 'À propos', href: '/About' },
   ];
 
   return (
@@ -26,7 +28,11 @@ const Header: React.FC = () => {
               <Scale className="h-5 w-5 text-white" />
             </div>
             <div className="flex flex-col">
+              
+              <div className="flex items-center space-x-2">
+              <Scale className="h-5 w-5 text-primary-600" />
               <span className="text-xl font-bold text-primary-600">Law Just</span>
+            </div>
               <span className="text-xs text-secondary-500">Plateforme juridique</span>
             </div>
           </div>
@@ -46,16 +52,6 @@ const Header: React.FC = () => {
 
           {/* Actions Desktop */}
           <div className="hidden lg:flex items-center space-x-4">
-            <Button variant="ghost" size="sm">
-              <Search className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Bell className="h-4 w-4" />
-            </Button>
-            <Button size="sm" onClick={() => (window.location.href = '/assistant')}>
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Assistance IA
-            </Button>
             <Button variant="outline" size="sm" onClick={() => (window.location.href = '/login')}>
               <User className="h-4 w-4 mr-2" />
               {isEnglish ? 'Login' : 'Connexion'}
